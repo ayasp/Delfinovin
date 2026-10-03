@@ -14,20 +14,11 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Setup .NET 7
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '7.0.x'
-        include-prerelease: true
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
 
-    - name: Restore dependencies
-      run: dotnet restore Delfinovin.sln
+    - name: Restore NuGet packages
+      run: nuget restore Delfinovin.sln
 
-    - name: Build application
-      run: dotnet publish Delfinovin.csproj -c Release -r win-x64 --self-contained true -o ./publish
-
-    - name: Upload artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: Delfinovin-Build
-        path: ./publish/
+    - name: Build with MSBuild
+      run: msbuild Delfinovin.sln /p:Configuration=Release /p:Platform="Any CPU"
