@@ -1,4 +1,4 @@
-﻿using Delfinovin.Controllers;
+using Delfinovin.Controllers;
 using Delfinovin.Controls;
 using Delfinovin.Controls.Windows;
 using LibUsbDotNet.Main;
@@ -7,6 +7,7 @@ using Nefarius.ViGEm.Client;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Numerics; // ← ここに追加！
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
