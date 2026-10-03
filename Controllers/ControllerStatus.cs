@@ -10,17 +10,19 @@ namespace Delfinovin.Controllers
     /// </summary>
     public struct ControllerStatus
     {
-        // プライベートな実体は持つが、外部からは常に (127, 127) しか読み書きできないようにする
+        // 元のフィールド形式に戻すことで、GamecubeAdapter.csからの代入エラー(CS1612)を回避
+        private Vector2 _lStick;
         public Vector2 LStick 
-        {
-            get => new Vector2(127, 127);
-            set { /* 書き込みを無視して常に中央に固定 */ }
+        { 
+            get => new Vector2(127, 127); // 常に中央値を返す
+            set => _lStick = new Vector2(127, 127); // 代入されても強制的に中央値にする
         }
-        
+
+        private Vector2 _rStick;
         public Vector2 RStick 
-        {
-            get => new Vector2(127, 127);
-            set { /* 書き込みを無視して常に中央に固定 */ }
+        { 
+            get => new Vector2(127, 127); // 常に中央値を返す
+            set => _rStick = new Vector2(127, 127); // 代入されても強制的に中央値にする
         }
 
         // Vector2.X is Left Trigger, Vector2.Y is Right Trigger
@@ -42,6 +44,8 @@ namespace Delfinovin.Controllers
 
         public ControllerStatus()
         {
+            _lStick = new Vector2(127, 127);
+            _rStick = new Vector2(127, 127);
             Triggers = Vector2.Zero;
         }
 
