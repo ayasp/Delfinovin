@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 
@@ -10,8 +10,19 @@ namespace Delfinovin.Controllers
     /// </summary>
     public struct ControllerStatus
     {
-        public Vector2 LStick;
-        public Vector2 RStick;
+        // タルコンガ等でスティックがない場合に暴走（左下に倒れっぱなし）するのを防ぐため、
+        // 常に中央値（127, 127）を返すように固定します。
+        public Vector2 LStick 
+        { 
+            get => new Vector2(127, 127); 
+            set { } 
+        }
+        
+        public Vector2 RStick 
+        { 
+            get => new Vector2(127, 127); 
+            set { } 
+        }
 
         // Vector2.X is Left Trigger, Vector2.Y is Right Trigger
         public Vector2 Triggers;
@@ -32,9 +43,7 @@ namespace Delfinovin.Controllers
 
         public ControllerStatus()
         {
-            // Initialize the control sticks to their centers
-            LStick = new Vector2(127, 127);
-            RStick = new Vector2(127, 127);
+            // 初期化時も念のためトリガーなどをゼロクリア
             Triggers = Vector2.Zero;
         }
 
@@ -54,7 +63,6 @@ namespace Delfinovin.Controllers
             return buttons;
         }
 
-        
         public void SetButtonFlag(GamecubeControllerButtons flag, bool toSet)
         {
             // Bitwise OR the value if true. If not true, bitwise AND NOT the flag
@@ -83,9 +91,9 @@ namespace Delfinovin.Controllers
         public bool IsEqual(ControllerStatus compare)
         {
             // Compare if the buttons/stick values are the same
+            // (スティックは常に固定値のため、ボタンとトリガーの一致を比較)
             return Buttons == compare.Buttons &&
-                LStick.Equals(compare.LStick) &&
-                RStick.Equals(compare.RStick);
+                Triggers.Equals(compare.Triggers);
         }
     }
 }
