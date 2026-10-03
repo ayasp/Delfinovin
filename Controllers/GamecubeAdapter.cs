@@ -233,15 +233,23 @@ namespace Delfinovin
                 _controllerStates[port].SetButtonFlag(GamecubeControllerButtons.R, Extensions.GetBit(workingByte, 2));
                 _controllerStates[port].SetButtonFlag(GamecubeControllerButtons.L, Extensions.GetBit(workingByte, 3));
 
-                // Update the trigger buttons based on our current trigger deadzone
+// Update the trigger buttons based on our current trigger deadzone
                 _controllerStates[port].UpdateTriggerButtons(ProfileManager.CurrentProfiles[port].TriggerDeadzone);
 
-                _controllerStates[port].LStick.X = controllerData[port * 9 + 4];
-                _controllerStates[port].LStick.Y = controllerData[port * 9 + 5];
-                _controllerStates[port].RStick.X = controllerData[port * 9 + 6];
-                _controllerStates[port].RStick.Y = controllerData[port * 9 + 7];
-                _controllerStates[port].Triggers.X = controllerData[port * 9 + 8];
-                _controllerStates[port].Triggers.Y = controllerData[port * 9 + 9];
+                _controllerStates[port].LStick = new Vector2(
+                    controllerData[port * 9 + 4],
+                    controllerData[port * 9 + 5]
+                );
+                
+                _controllerStates[port].RStick = new Vector2(
+                    controllerData[port * 9 + 6],
+                    controllerData[port * 9 + 7]
+                );
+                
+                _controllerStates[port].Triggers = new Vector2(
+                    controllerData[port * 9 + 8],
+                    controllerData[port * 9 + 9]
+                );
 
                 // Add in the virtual clause so we don't disconnect a virtual controller
                 // That gets done manually 
