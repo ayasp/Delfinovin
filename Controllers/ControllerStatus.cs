@@ -10,20 +10,8 @@ namespace Delfinovin.Controllers
     /// </summary>
     public struct ControllerStatus
     {
-        // 元のフィールド形式に戻すことで、GamecubeAdapter.csからの代入エラー(CS1612)を回避
-        private Vector2 _lStick;
-        public Vector2 LStick 
-        { 
-            get => new Vector2(127, 127); // 常に中央値を返す
-            set => _lStick = new Vector2(127, 127); // 代入されても強制的に中央値にする
-        }
-
-        private Vector2 _rStick;
-        public Vector2 RStick 
-        { 
-            get => new Vector2(127, 127); // 常に中央値を返す
-            set => _rStick = new Vector2(127, 127); // 代入されても強制的に中央値にする
-        }
+        public Vector2 LStick;
+        public Vector2 RStick;
 
         // Vector2.X is Left Trigger, Vector2.Y is Right Trigger
         public Vector2 Triggers;
@@ -32,8 +20,6 @@ namespace Delfinovin.Controllers
         public ControllerType ControllerType;
         public bool IsPowered { get; set; }
 
-        // If the controller type isn't set to none,
-        // that means we're connected
         public ConnectionStatus IsPlugged
         {
             get 
@@ -44,8 +30,9 @@ namespace Delfinovin.Controllers
 
         public ControllerStatus()
         {
-            _lStick = new Vector2(127, 127);
-            _rStick = new Vector2(127, 127);
+            // Initialize the control sticks to their centers
+            LStick = new Vector2(127, 127);
+            RStick = new Vector2(127, 127);
             Triggers = Vector2.Zero;
         }
 
@@ -86,7 +73,8 @@ namespace Delfinovin.Controllers
         public bool IsEqual(ControllerStatus compare)
         {
             return Buttons == compare.Buttons &&
-                Triggers.Equals(compare.Triggers);
+                LStick.Equals(compare.LStick) &&
+                RStick.Equals(compare.RStick);
         }
     }
 }
