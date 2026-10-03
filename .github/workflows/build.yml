@@ -20,7 +20,7 @@ jobs:
         dotnet-version: '7.0.x'
 
     - name: Restore dependencies
-      dotnet restore Delfinovin.sln
+      run: dotnet restore Delfinovin.sln
 
     - name: Build application
       run: dotnet publish Delfinovin.sln -c Release -r win-x64 --self-contained true -o ./publish
