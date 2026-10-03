@@ -21,4 +21,10 @@ jobs:
       run: nuget restore Delfinovin.sln
 
     - name: Build with MSBuild
-      run: msbuild Delfinovin.sln /p:Configuration=Release /p:Platform="Any CPU"
+      run: msbuild Delfinovin.sln /p:Configuration=Release /p:Platform="Any CPU" /p:OutputPath="${{ github.workspace }}/publish"
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Delfinovin-Build
+        path: ${{ github.workspace }}/publish/
