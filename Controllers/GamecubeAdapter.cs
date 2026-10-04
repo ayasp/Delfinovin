@@ -286,9 +286,13 @@ for (int port = 0; port < 4; port++)
                 // ViGEm controller
                 UpdateController(port);
 
-                // Update our listener with new button states
+// Update our listener with new button states
                 _hotkeyListener.UpdateListener(_controllerStates[port], port);
-            }
+            } // ← ここに for ループを閉じる '}' が必要でした！
+
+            // We've finished, send a new input frame to the event.
+            InputFrameProcessed?.Invoke(this, _controllerStates);
+        } // ← ここが UpdateInputs メソッドの閉じタグ
 
         public void UpdateController(int port)
         {
