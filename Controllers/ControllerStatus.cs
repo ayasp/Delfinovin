@@ -8,13 +8,23 @@ namespace Delfinovin.Controllers
     /// Represents values that a Gamecube Controller can have set.
     /// Provides functionality to receive bit inputs and update flags.
     /// </summary>
-    public struct ControllerStatus
-    {
-        public Vector2 LStick;
-        public Vector2 RStick;
+public struct ControllerStatus
+{
+    // タルコンガ対策：常にセンター（127, 127）を返す
+    public Vector2 LStick 
+    { 
+        get => new Vector2(127, 127); 
+        set { } // 代入されても無視
+    }
+    
+    public Vector2 RStick 
+    { 
+        get => new Vector2(127, 127); 
+        set { } // 代入されても無視
+    }
 
-        // Vector2.X is Left Trigger, Vector2.Y is Right Trigger
-        public Vector2 Triggers;
+    // Vector2.X is Left Trigger, Vector2.Y is Right Trigger
+    public Vector2 Triggers;
 
         public GamecubeControllerButtons Buttons;
         public ControllerType ControllerType;
