@@ -196,21 +196,21 @@ namespace Delfinovin
             }
         }
 
-        public void UpdateInputs(byte[] controllerData)
+public void UpdateInputs(byte[] controllerData)
         {
             // The first byte is a magic byte. If
             // this is not found, the data is invalid.
             if (controllerData[0] != 0x21)
                 throw new Exception(Strings.ErrorMagicNotFound);
 
-for (int port = 0; port < 4; port++)
+            for (int port = 0; port < 4; port++)
             {
                 // Get a byte and work on each bit. Fill out each inputState
                 // using the data from each 36 bytes.
                 byte workingByte = controllerData[port * 9 + 1];
 
-                // ★ 1. 一時変数（コピー）に現在のステータスを取り出す
-                ControllerStatus state = _controllerStates[port];
+                // ★ 修正: 前回のステータスを流用せず、毎フレーム新しい状態として初期化する！
+                ControllerStatus state = new ControllerStatus();
 
                 state.IsPowered = Extensions.GetBit(workingByte, 2);
 
@@ -221,6 +221,7 @@ for (int port = 0; port < 4; port++)
 
                 state.ControllerType = Extensions.GetBit(workingByte, 5) ? state.ControllerType | ControllerType.Wavebird :
                                                                            state.ControllerType & ~ControllerType.Wavebird;
+                
                 workingByte = controllerData[port * 9 + 2];
                 state.SetButtonFlag(GamecubeControllerButtons.A, Extensions.GetBit(workingByte, 0));
                 state.SetButtonFlag(GamecubeControllerButtons.B, Extensions.GetBit(workingByte, 1));
@@ -255,7 +256,7 @@ for (int port = 0; port < 4; port++)
                     controllerData[port * 9 + 9]
                 );
 
-                // ★ 2. 変更を加えた構造体を、元の配列に丸ごと書き戻す！
+                // 変更を加えた構造体を、元の配列に書き戻す
                 _controllerStates[port] = state;
 
                 // Add in the virtual clause so we don't disconnect a virtual controller
@@ -286,13 +287,13 @@ for (int port = 0; port < 4; port++)
                 // ViGEm controller
                 UpdateController(port);
 
-// Update our listener with new button states
+                // Update our listener with new button states
                 _hotkeyListener.UpdateListener(_controllerStates[port], port);
-            } // ← ここに for ループを閉じる '}' が必要でした！
+            }
 
             // We've finished, send a new input frame to the event.
             InputFrameProcessed?.Invoke(this, _controllerStates);
-        } // ← ここが UpdateInputs メソッドの閉じタグ
+        }
 
         public void UpdateController(int port)
         {
