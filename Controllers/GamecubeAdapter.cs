@@ -203,54 +203,60 @@ namespace Delfinovin
             if (controllerData[0] != 0x21)
                 throw new Exception(Strings.ErrorMagicNotFound);
 
-            for (int port = 0; port < 4; port++)
+for (int port = 0; port < 4; port++)
             {
                 // Get a byte and work on each bit. Fill out each inputState
                 // using the data from each 36 bytes.
                 byte workingByte = controllerData[port * 9 + 1];
 
-                _controllerStates[port].IsPowered = Extensions.GetBit(workingByte, 2);
+                // ★ 1. 一時変数（コピー）に現在のステータスを取り出す
+                ControllerStatus state = _controllerStates[port];
+
+                state.IsPowered = Extensions.GetBit(workingByte, 2);
 
                 // OR / AND NOT these values together so that it can be either 
                 // of these controller types.
-                _controllerStates[port].ControllerType = Extensions.GetBit(workingByte, 4) ? _controllerStates[port].ControllerType | ControllerType.Standard :
-                                                                                             _controllerStates[port].ControllerType & ~ControllerType.Standard;
+                state.ControllerType = Extensions.GetBit(workingByte, 4) ? state.ControllerType | ControllerType.Standard :
+                                                                           state.ControllerType & ~ControllerType.Standard;
 
-                _controllerStates[port].ControllerType = Extensions.GetBit(workingByte, 5) ? _controllerStates[port].ControllerType | ControllerType.Wavebird :
-                                                                                             _controllerStates[port].ControllerType & ~ControllerType.Wavebird;
+                state.ControllerType = Extensions.GetBit(workingByte, 5) ? state.ControllerType | ControllerType.Wavebird :
+                                                                           state.ControllerType & ~ControllerType.Wavebird;
                 workingByte = controllerData[port * 9 + 2];
-                _controllerStates[port].SetButtonFlag(GamecubeControllerButtons.A, Extensions.GetBit(workingByte, 0));
-                _controllerStates[port].SetButtonFlag(GamecubeControllerButtons.B, Extensions.GetBit(workingByte, 1));
-                _controllerStates[port].SetButtonFlag(GamecubeControllerButtons.X, Extensions.GetBit(workingByte, 2));
-                _controllerStates[port].SetButtonFlag(GamecubeControllerButtons.Y, Extensions.GetBit(workingByte, 3));
-                _controllerStates[port].SetButtonFlag(GamecubeControllerButtons.DpadLeft, Extensions.GetBit(workingByte, 4));
-                _controllerStates[port].SetButtonFlag(GamecubeControllerButtons.DpadRight, Extensions.GetBit(workingByte, 5));
-                _controllerStates[port].SetButtonFlag(GamecubeControllerButtons.DpadDown, Extensions.GetBit(workingByte, 6));
-                _controllerStates[port].SetButtonFlag(GamecubeControllerButtons.DpadUp, Extensions.GetBit(workingByte, 7));
+                state.SetButtonFlag(GamecubeControllerButtons.A, Extensions.GetBit(workingByte, 0));
+                state.SetButtonFlag(GamecubeControllerButtons.B, Extensions.GetBit(workingByte, 1));
+                state.SetButtonFlag(GamecubeControllerButtons.X, Extensions.GetBit(workingByte, 2));
+                state.SetButtonFlag(GamecubeControllerButtons.Y, Extensions.GetBit(workingByte, 3));
+                state.SetButtonFlag(GamecubeControllerButtons.DpadLeft, Extensions.GetBit(workingByte, 4));
+                state.SetButtonFlag(GamecubeControllerButtons.DpadRight, Extensions.GetBit(workingByte, 5));
+                state.SetButtonFlag(GamecubeControllerButtons.DpadDown, Extensions.GetBit(workingByte, 6));
+                state.SetButtonFlag(GamecubeControllerButtons.DpadUp, Extensions.GetBit(workingByte, 7));
 
                 workingByte = controllerData[port * 9 + 3];
-                _controllerStates[port].SetButtonFlag(GamecubeControllerButtons.Start, Extensions.GetBit(workingByte, 0));
-                _controllerStates[port].SetButtonFlag(GamecubeControllerButtons.Z, Extensions.GetBit(workingByte, 1));
-                _controllerStates[port].SetButtonFlag(GamecubeControllerButtons.R, Extensions.GetBit(workingByte, 2));
-                _controllerStates[port].SetButtonFlag(GamecubeControllerButtons.L, Extensions.GetBit(workingByte, 3));
+                state.SetButtonFlag(GamecubeControllerButtons.Start, Extensions.GetBit(workingByte, 0));
+                state.SetButtonFlag(GamecubeControllerButtons.Z, Extensions.GetBit(workingByte, 1));
+                state.SetButtonFlag(GamecubeControllerButtons.R, Extensions.GetBit(workingByte, 2));
+                state.SetButtonFlag(GamecubeControllerButtons.L, Extensions.GetBit(workingByte, 3));
 
-// Update the trigger buttons based on our current trigger deadzone
-                _controllerStates[port].UpdateTriggerButtons(ProfileManager.CurrentProfiles[port].TriggerDeadzone);
+                // Update the trigger buttons based on our current trigger deadzone
+                state.UpdateTriggerButtons(ProfileManager.CurrentProfiles[port].TriggerDeadzone);
 
-                _controllerStates[port].LStick = new Vector2(
+                state.LStick = new Vector2(
                     controllerData[port * 9 + 4],
                     controllerData[port * 9 + 5]
                 );
                 
-                _controllerStates[port].RStick = new Vector2(
+                state.RStick = new Vector2(
                     controllerData[port * 9 + 6],
                     controllerData[port * 9 + 7]
                 );
                 
-                _controllerStates[port].Triggers = new Vector2(
+                state.Triggers = new Vector2(
                     controllerData[port * 9 + 8],
                     controllerData[port * 9 + 9]
                 );
+
+                // ★ 2. 変更を加えた構造体を、元の配列に丸ごと書き戻す！
+                _controllerStates[port] = state;
 
                 // Add in the virtual clause so we don't disconnect a virtual controller
                 // That gets done manually 
@@ -283,10 +289,6 @@ namespace Delfinovin
                 // Update our listener with new button states
                 _hotkeyListener.UpdateListener(_controllerStates[port], port);
             }
-
-            // We've finished, send a new input frame to the event.
-            InputFrameProcessed?.Invoke(this, _controllerStates);
-        }
 
         public void UpdateController(int port)
         {
