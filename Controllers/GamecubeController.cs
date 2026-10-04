@@ -132,12 +132,10 @@ namespace Delfinovin.Controllers
             }).ConfigureAwait(false);
         }
 
-        public void UpdateInputs(ControllerStatus input)
+public void UpdateInputs(ControllerStatus input)
         {
-            // We can update our input if:
-            // - The previous input is not the same
-            // - This controller is connected
-            if (!_previousInput.IsEqual(input) && this.ConnectionStatus == ConnectionStatus.Connected)
+            // 接続されている場合のみ更新
+            if (this.ConnectionStatus == ConnectionStatus.Connected)
             {
                 foreach (var entry in ProfileManager.CurrentProfiles[ControllerPort].ButtonMapping)
                 {
@@ -157,13 +155,7 @@ namespace Delfinovin.Controllers
                         // Convert the boolean value to an int
                         int sliderValue = (isPressed ? 255 : 0);
 
-                        
-
                         // Check to see if LAnalog/RAnalog is being mapped.
-                        // If so, see if the analog trigger value is lower than
-                        // the current slider value. If so, use that one.
-                        // After, check to see if the value is above the threshold.
-                        // If so, immediately set the value to the trigger max (255).
                         if (entry.Value.HasFlag(GamecubeControllerButtons.LAnalog))
                         {
                             sliderValue = (int)(input.Triggers.X < sliderValue ? input.Triggers.X : sliderValue);
@@ -194,8 +186,6 @@ namespace Delfinovin.Controllers
                 float rightRange = 1 + (1 - ProfileManager.CurrentProfiles[ControllerPort].RightStickRange);
 
                 // Apply our stick deadzones and ranges.
-                // If the stick value exceeds the range, cut it off
-                // so we have perfect circles.
                 LeftStick = Extensions.ClampToCircle(Extensions.ApplyDeadzone(LeftStick,
                     ProfileManager.CurrentProfiles[ControllerPort].LeftStickDeadzone),
                     leftRange);
