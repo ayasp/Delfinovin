@@ -209,8 +209,13 @@ public void UpdateInputs(byte[] controllerData)
                 // using the data from each 36 bytes.
                 byte workingByte = controllerData[port * 9 + 1];
 
-                // ★ 修正: 前回のステータスを流用せず、毎フレーム新しい状態として初期化する！
-                ControllerStatus state = new ControllerStatus();
+                // 新規作成しつつ、スティックの初期値をニュートラル（128）にしておく
+                ControllerStatus state = new ControllerStatus
+                {
+                    LStick = new Vector2(128, 128),
+                    RStick = new Vector2(128, 128),
+                    Triggers = new Vector2(0, 0)
+                };
 
                 state.IsPowered = Extensions.GetBit(workingByte, 2);
 
@@ -241,6 +246,7 @@ public void UpdateInputs(byte[] controllerData)
                 // Update the trigger buttons based on our current trigger deadzone
                 state.UpdateTriggerButtons(ProfileManager.CurrentProfiles[port].TriggerDeadzone);
 
+                // スティックの読み込み（値が取れていればここで上書きされる）
                 state.LStick = new Vector2(
                     controllerData[port * 9 + 4],
                     controllerData[port * 9 + 5]
